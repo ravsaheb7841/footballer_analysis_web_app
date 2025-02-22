@@ -1,4 +1,5 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 from data_processing import load_data
 from analysis import player_wise, confederation_wise, career_summary, fastest_50_goals
 
@@ -27,11 +28,31 @@ if analysis_type == "Player Analysis":
     st.success(f"Showing stats for : { player_name}")  # Highlight Selected Player
     st.dataframe(player_wise(player_name), use_container_width=True)
 
+
 elif analysis_type == "Confederation Analysis":
     st.subheader("🌍 Confederation Analysis")
     conf = st.selectbox("Select Confederation", ['Overall'] + list(data['Confederation'].unique()))
-    st.success(f"Showing stats for : { conf}")
-    st.dataframe(confederation_wise(conf), use_container_width=True)
+    st.success(f"Showing stats for : {conf}")
+
+    # Display Data Table
+    conf_data = confederation_wise(conf)
+    st.dataframe(conf_data, use_container_width=True)
+
+    # Add Overall Confederation Analysis Graph Below the Table
+    if conf == "Overall":
+        st.subheader("📊 Confederation-Wise Goals Distribution")
+        fig, ax = plt.subplots()
+        conf_data.plot(kind='bar', x='Confederation', y='Goals', ax=ax, legend=False)
+
+        # Adjust X-axis for better readability
+        ax.set_xlabel("Confederation", fontsize=10)
+        ax.set_ylabel("Total Goals", fontsize=10)
+        ax.set_title("Goals Scored by Confederations", fontsize=12)
+        ax.tick_params(axis='x', rotation=30, labelsize=8)
+
+        st.pyplot(fig)
+
+
 
 elif analysis_type == "Career Summary":
     st.subheader("🏆 Career Summary")
